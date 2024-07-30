@@ -29,6 +29,7 @@
     <properties>
         <java.version>17</java.version>
         <telegrambots.version>6.9.7.1</telegrambots.version>
+
     </properties>
     <dependencies>
         <dependency>
