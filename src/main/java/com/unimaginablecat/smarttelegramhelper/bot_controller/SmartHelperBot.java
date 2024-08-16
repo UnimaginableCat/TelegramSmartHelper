@@ -9,6 +9,7 @@ import com.unimaginablecat.smarttelegramhelper.service.MockNoteCategoryServiceIm
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -36,13 +37,12 @@ public class SmartHelperBot extends TelegramLongPollingBot {
     private final TelegramBotConfig botConfig; // Конфиг бота
     private final Map<String, MessageProcessorChain> messageProcessorChainMap;
     private final Map<String, CallbackQueryProcessor> callBackProcessorChainMap;
-    public SmartHelperBot(@Autowired TelegramBotConfig botConfig,
-                          @Autowired @Qualifier("messageProcessorChainMap") Map<String, MessageProcessorChain> messageProcessorChainMap) {
+    public SmartHelperBot(@Autowired TelegramBotConfig botConfig) {
         super(botConfig.getApiToken());
         this.botConfig = botConfig;
-        this.messageProcessorChainMap = messageProcessorChainMap;
-        this.callBackProcessorChainMap = new HashMap<>();
-        callBackProcessorChainMap.put("notes", new NotesCallbackQueryProcessor(new MockNoteCategoryServiceImpl()));
+        this.messageProcessorChainMap = botConfig.getMessageProcessorChainMap();
+        this.callBackProcessorChainMap = botConfig.getCallbackQueryProcessorMap();
+//        callBackProcessorChainMap.put("notes", new NotesCallbackQueryProcessor(new MockNoteCategoryServiceImpl()));
     }
 
     @Override
@@ -60,7 +60,6 @@ public class SmartHelperBot extends TelegramLongPollingBot {
             CallbackQueryProcessor callbackQueryProcessor = callBackProcessorChainMap.get(data);
             BotApiMethod<? extends Serializable> response = callbackQueryProcessor.getResponse(callbackQuery);
             responses.add(response);
-
         }
 
         sendResponse(responses);

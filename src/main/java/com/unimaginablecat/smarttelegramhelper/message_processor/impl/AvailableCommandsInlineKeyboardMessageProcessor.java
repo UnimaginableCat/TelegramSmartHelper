@@ -1,5 +1,6 @@
 package com.unimaginablecat.smarttelegramhelper.message_processor.impl;
 
+import com.unimaginablecat.smarttelegramhelper.config.BotCommands;
 import com.unimaginablecat.smarttelegramhelper.message_processor.InlineKeyboardButtonMaker;
 import com.unimaginablecat.smarttelegramhelper.message_processor.KeyboardMessageProcessor;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -20,7 +21,7 @@ public class AvailableCommandsInlineKeyboardMessageProcessor extends KeyboardMes
 
     @Override
     protected ReplyKeyboard getReplyKeyboard() {
-        InlineKeyboardButton notesButton = getInlineKeyboardButton("Notes", "notes");
+        InlineKeyboardButton notesButton = getInlineKeyboardButton("Notes", BotCommands.NOTES);
         InlineKeyboardButton notificationsButton = getInlineKeyboardButton("Notifications", "notif");
 
         List<InlineKeyboardButton> firstRow = new ArrayList<>();

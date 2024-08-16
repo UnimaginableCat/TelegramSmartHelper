@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * Callback query processor interface.
  */
-public interface CallbackQueryProcessor {
+public interface CallbackQueryProcessor extends InlineKeyboardButtonMaker{
     /**
      * Get response for callback query.
      * @param callbackQuery incoming callback Qery.

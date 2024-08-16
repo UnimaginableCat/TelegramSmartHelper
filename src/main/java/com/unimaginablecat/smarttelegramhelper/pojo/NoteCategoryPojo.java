@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public class NoteCategory {
+public class NoteCategoryPojo {
     private  UUID id;
     private  String name;
     private String userId;

@@ -1,10 +1,11 @@
 package com.unimaginablecat.smarttelegramhelper.message_processor;
 
-import com.unimaginablecat.smarttelegramhelper.pojo.NoteCategory;
+import com.unimaginablecat.smarttelegramhelper.entity.BotUserEntity;
+import com.unimaginablecat.smarttelegramhelper.entity.NoteCategoryEntity;
+import com.unimaginablecat.smarttelegramhelper.pojo.NoteCategoryPojo;
+import com.unimaginablecat.smarttelegramhelper.service.BotUserService;
 import com.unimaginablecat.smarttelegramhelper.service.NoteCategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -17,21 +18,50 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
 @RequiredArgsConstructor
-public class NotesCallbackQueryProcessor implements CallbackQueryProcessor, InlineKeyboardButtonMaker {
-    private final String RESPONSE = """
+@Component("notesCallbackQueryProcessor")
+public class NotesCallbackQueryProcessor implements CallbackQueryProcessor {
+    private String DEFAULT_RESPONSE = """
             Your categories:
             """;
+    private String USER_NOT_EXISTS_RESPONSE = """
+            Something went wrong, please use /start command.
+            """;
+    private String NO_CATEGORIES_RESPONSE = """
+            Currently you don't have any added note categories.
+            Add them with add category button.
+            """;
     private final NoteCategoryService noteCategoryService;
+    private final BotUserService botUserService;
 
     @Override
     public BotApiMethod<? extends Serializable> getResponse(CallbackQuery callbackQuery) {
-        ReplyKeyboard replyKeyboard = getReplyKeyboard();
+        Long id = callbackQuery.getFrom().getId();
+        BotUserEntity botUserEntity;
+
+        try {
+            botUserEntity = botUserService.findUserByTelegramId(id.toString());
+        } catch (Exception e) {
+            return SendMessage.builder()
+                    .chatId(callbackQuery.getMessage().getChatId())
+                    .text(USER_NOT_EXISTS_RESPONSE)
+                    .build();
+        }
+
+        List<NoteCategoryEntity> userCategories = noteCategoryService.getUserCategories(botUserEntity);
+        ReplyKeyboard replyKeyboard = getReplyKeyboard(userCategories);
+
+        if (!userCategories.isEmpty()) {
+            return SendMessage.builder()
+                    .chatId(callbackQuery.getMessage().getChatId())
+                    .text(DEFAULT_RESPONSE)
+                    .replyMarkup(replyKeyboard)
+                    .build();
+        }
 
         return SendMessage.builder()
                 .chatId(callbackQuery.getMessage().getChatId())
-                .text(RESPONSE)
+                .text(NO_CATEGORIES_RESPONSE)
                 .replyMarkup(replyKeyboard)
                 .build();
     }
@@ -59,22 +89,19 @@ public class NotesCallbackQueryProcessor implements CallbackQueryProcessor, Inli
         return buttonRows;
     }
 
-    private List<List<InlineKeyboardButton>> getCategoriesButtons(List<NoteCategory> userCategories) {
-        return userCategories
+    private List<List<InlineKeyboardButton>> getCategoriesButtons(List<NoteCategoryEntity> userNotesCategories) {
+        return userNotesCategories
                 .stream()
-                .map(category -> getInlineKeyboardButton(category.getName(), category.getUserId()))
+                .map(category -> getInlineKeyboardButton(category.getName(), "/category_" + category.getId()))
                 .map(List::of)
                 .toList();
     }
 
-    protected ReplyKeyboard getReplyKeyboard() {
-        List<List<InlineKeyboardButton>> result = new ArrayList<>();
-
-        List<NoteCategory> userNotesCategories = noteCategoryService.getUserNotesCategories();
+    protected ReplyKeyboard getReplyKeyboard(List<NoteCategoryEntity> userNotesCategories) {
         List<List<InlineKeyboardButton>> categoriesButtons = getCategoriesButtons(userNotesCategories);
-        List<List<InlineKeyboardButton>> footer = getFooter();
+        List<List<InlineKeyboardButton>> result = new ArrayList<>(categoriesButtons);
 
-        result.addAll(categoriesButtons);
+        List<List<InlineKeyboardButton>> footer = getFooter();
         result.addAll(footer);
 
         return InlineKeyboardMarkup.builder()
