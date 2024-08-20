@@ -3,5 +3,6 @@
 
     <include file="classpath:config/liquibase/changelog/001_initial_schema.xml" relativeToChangelogFile="false" />
     <include file="classpath:config/liquibase/changelog/002_added_note_category_table.xml" relativeToChangelogFile="false" />
+    <include file="classpath:config/liquibase/changelog/003_added_user_reply_table.xml" relativeToChangelogFile="false" />
 
 </databaseChangeLog>

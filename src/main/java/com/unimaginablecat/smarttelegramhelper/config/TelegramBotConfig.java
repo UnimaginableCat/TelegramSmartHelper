@@ -1,25 +1,18 @@
 package com.unimaginablecat.smarttelegramhelper.config;
 
-import com.unimaginablecat.smarttelegramhelper.message_processor.BotMessageProcessorDeprecated;
-import com.unimaginablecat.smarttelegramhelper.message_processor.CallbackQueryProcessor;
+import com.unimaginablecat.smarttelegramhelper.callback_processor.CallbackQueryProcessor;
 import com.unimaginablecat.smarttelegramhelper.message_processor.impl.AvailableCommandsInlineKeyboardMessageProcessor;
 import com.unimaginablecat.smarttelegramhelper.message_processor.MessageProcessorChain;
 import com.unimaginablecat.smarttelegramhelper.message_processor.impl.CommandsMessageProcessor;
 import com.unimaginablecat.smarttelegramhelper.message_processor.impl.DefaultMessageProcessor;
 import com.unimaginablecat.smarttelegramhelper.message_processor.impl.InfoMessageProcessor;
-import com.unimaginablecat.smarttelegramhelper.message_processor.impl.StartMessageProcessor;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Base bot config.
@@ -71,7 +64,10 @@ public class TelegramBotConfig {
     public Map<String, CallbackQueryProcessor> getCallbackQueryProcessorMap() {
         Map<String, CallbackQueryProcessor> resultMap = new HashMap<>();
         CallbackQueryProcessor notesCallbackQueryProcessor = callbackQueryProcessorMap.get("notesCallbackQueryProcessor");
+        CallbackQueryProcessor addNoteCategoryCallbackQueryProcessor = callbackQueryProcessorMap.get("addNoteCategoryCallbackProcessor");
+
         resultMap.put(BotCommands.NOTES, notesCallbackQueryProcessor);
+        resultMap.put(BotCommands.ADD_CATEGORY, addNoteCategoryCallbackQueryProcessor);
         return resultMap;
     }
 

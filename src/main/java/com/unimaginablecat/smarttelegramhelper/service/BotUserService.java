@@ -14,5 +14,12 @@ public interface BotUserService {
      * @return saved or existing bot user entity.
      */
     BotUserEntity saveUser(BotUserDto botUserDto);
-    BotUserEntity findUserByTelegramId(String telegramId) throws Exception;
+
+    /**
+     * Method that finds user in db by telegram user id.
+     * @param telegramUserId
+     * @return
+     * @throws Exception thrown if user is not found.
+     */
+    BotUserEntity findUserByTelegramId(String telegramUserId) throws Exception;
 }

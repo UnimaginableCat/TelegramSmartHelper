@@ -7,6 +7,7 @@ import com.unimaginablecat.smarttelegramhelper.service.BotUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ public class BotUserServiceImpl implements BotUserService {
     private final BotUserRepository botUserRepository;
 
     @Override
+    @Transactional
     public BotUserEntity saveUser(BotUserDto botUserDto) {
         log.info("Saving bot user entity with telegramId: {}", botUserDto.getTelegramUserId());
         BotUserEntity botUserEntity = BotUserEntity.builder()
@@ -43,9 +45,10 @@ public class BotUserServiceImpl implements BotUserService {
     }
 
     @Override
-    public BotUserEntity findUserByTelegramId(String telegramId) throws RuntimeException{
-        log.info("Finding bot user entity with telegram id: {}", telegramId);
-        Optional<BotUserEntity> optionalBotUserEntity = botUserRepository.findBotUserEntityByTelegramUserId(telegramId);
+    @Transactional(readOnly = true)
+    public BotUserEntity findUserByTelegramId(String telegramUserId) throws RuntimeException{
+        log.info("Finding bot user entity with telegram id: {}", telegramUserId);
+        Optional<BotUserEntity> optionalBotUserEntity = botUserRepository.findBotUserEntityByTelegramUserId(telegramUserId);
         if (optionalBotUserEntity.isEmpty()) {
             log.error("Can't find user by telegram id");
             throw new RuntimeException("USER IS NOT PRESENT IN DB");
